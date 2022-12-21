@@ -186,3 +186,7 @@ jobs:
           echo '###############################################################'
           echo "$JOB_CONTEXT"
           echo '###############################################################'
+          echo 'runner.workspace = ${{ runner.workspace }}''
+          echo 'github.workspace = ${{ github.workspace }}''
+          echo 'env.RUNNER_WORKSPACE = ${{ env.RUNNER_WORKSPACE }}'
+          echo 'RUNNER_WORKSPACE = ${RUNNER_WORKSPACE}'
