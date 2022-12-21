@@ -140,40 +140,27 @@ jobs:
         with:
           arch: x64
 
-      - name: Cache qt5-vtk
+      - name: Cache VTK ${{ env.VTK_VER }} for Qt ${{ env.AQT_VER }}
         id: cache-qt5-vtk
         uses: actions/cache@v3
         with:
           path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}
           key: ${{ matrix.config.os }}-qt5-vtk-${{ matrix.config.cmake_config }}-${{ hashFiles('CMakePresets-vtk-${{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json') }}
 
-      - name: Build qt5-vtk (Non-Windows)
-        if: steps.cache-qt5-vtk.outputs.cache-hit != 'true' && runner.os != 'Windows'
+      - name: Build VTK ${{ env.VTK_VER }} for Qt ${{ env.AQT_VER }}
+        if: steps.cache-qt5-vtk.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
         run: |
-          # curl -L -O https://github.com/Kitware/VTK/archive/refs/tags/v${{ env.VTK_VER }}.tar.gz
-          # tar xzf ./v${{ env.VTK_VER }}.tar.gz
-          printenv
-          # cp ./modelviewer-mf6/misc/CMakePresets-vtk-{{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json ./VTK-${{ env.VTK_VER }}/CMakePresets.json
-          # cd ./VTK-${{ env.VTK_VER }}/.
-          # cmake --preset ${{ matrix.config.aqt_arch }}
-          # cmake --build --preset ${{ matrix.config.aqt_arch }} --config ${{ matrix.config.cmake_config }}
-          # cmake --install ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-build --config ${{ matrix.config.cmake_config }}
-
-      - name: Build qt5-vtk (Windows)
-        if: steps.cache-qt5-vtk.outputs.cache-hit != 'true' && runner.os == 'Windows'
-        working-directory: ${{ runner.workspace }}
-        run: |
-          # curl -L -O https://github.com/Kitware/VTK/archive/refs/tags/v${{ env.VTK_VER }}.tar.gz
-          # tar xzf ./v${{ env.VTK_VER }}.tar.gz
-          Get-ChildItem env:
-          # cp ./modelviewer-mf6/misc/CMakePresets-vtk-{{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json ./VTK-${{ env.VTK_VER }}/CMakePresets.json
-          # cd ./VTK-${{ env.VTK_VER }}/.
-          # cmake --preset ${{ matrix.config.aqt_arch }}
-          # cmake --build --preset ${{ matrix.config.aqt_arch }} --config ${{ matrix.config.cmake_config }}
-          # cmake --install ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-build --config ${{ matrix.config.cmake_config }}
+          curl -L -O https://github.com/Kitware/VTK/archive/refs/tags/v${{ env.VTK_VER }}.tar.gz
+          tar xzf ./v${{ env.VTK_VER }}.tar.gz
+          cp ${{ github.workspace }}/CMakePresets-vtk-${{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json ./VTK-${{ env.VTK_VER }}/CMakePresets.json
+          cd ./VTK-${{ env.VTK_VER }}/.
+          cmake --preset ${{ matrix.config.aqt_arch }}
+          cmake --build --preset ${{ matrix.config.aqt_arch }} --config ${{ matrix.config.cmake_config }}
+          cmake --install ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-build --config ${{ matrix.config.cmake_config }}
 
       - name: Dump contexts
+        if: false
         env:
           RUNNER_CONTEXT: ${{ toJSON(runner) }}
           GITHUB_CONTEXT: ${{ toJSON(github) }}
