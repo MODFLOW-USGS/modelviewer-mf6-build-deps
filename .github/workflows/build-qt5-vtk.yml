@@ -172,3 +172,17 @@ jobs:
           # cmake --preset ${{ matrix.config.aqt_arch }}
           # cmake --build --preset ${{ matrix.config.aqt_arch }} --config ${{ matrix.config.cmake_config }}
           # cmake --install ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-build --config ${{ matrix.config.cmake_config }}
+
+      - name: Dump contexts
+        env:
+          RUNNER_CONTEXT: ${{ toJSON(runner) }}
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+          JOB_CONTEXT: ${{ toJSON(job) }}
+        run: |
+          echo '###############################################################'
+          echo "$RUNNER_CONTEXT"
+          echo '###############################################################'
+          echo "$GITHUB_CONTEXT"
+          echo '###############################################################'
+          echo "$JOB_CONTEXT"
+          echo '###############################################################'
