@@ -1,0 +1,174 @@
+name: build-qt5-vtk
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'develop'
+  pull_request:
+    branches:
+      - 'main'
+      - 'develop'
+
+  workflow_dispatch:
+
+env:
+  AQT_TARGET: desktop
+  AQT_VER: 5.15.2
+  VTK_VER: 9.1.0
+
+# ${{ env.RUNNER_WORKSPACE }} doesn't seem to work on linux and macos
+# but ${RUNNER_WORKSPACE} is set in the environment for all os
+# therefore use ${{ runner.workspace }} instead of ${{ env.RUNNER_WORKSPACE }}
+
+jobs:
+  cache-qt5-vtk:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "macos-11-debug",
+            os: macos-11,
+            cmake_config: Debug,
+            aqt_host: mac,
+            aqt_arch: clang_64
+          }
+        - {
+            name: "ubuntu-20.04-debug",
+            os: ubuntu-20.04,
+            cmake_config: Debug,
+            aqt_host: linux,
+            aqt_arch: gcc_64
+          }
+        - {
+            name: "windows-2019-debug",
+            os: windows-2019,
+            cmake_config: Debug,
+            aqt_host: windows,
+            aqt_arch: win64_msvc2019_64
+          }
+        - {
+            name: "macos-11-release",
+            os: macos-11,
+            cmake_config: Release,
+            aqt_host: mac,
+            aqt_arch: clang_64
+          }
+        - {
+            name: "ubuntu-20.04-release",
+            os: ubuntu-20.04,
+            cmake_config: Release,
+            aqt_host: linux,
+            aqt_arch: gcc_64
+          }
+        - {
+            name: "windows-2019-release",
+            os: windows-2019,
+            cmake_config: Release,
+            aqt_host: windows,
+            aqt_arch: win64_msvc2019_64
+          }
+        - {
+            name: "macos-12-debug",
+            os: macos-12,
+            cmake_config: Debug,
+            aqt_host: mac,
+            aqt_arch: clang_64
+          }
+        - {
+            name: "ubuntu-22.04-debug",
+            os: ubuntu-22.04,
+            cmake_config: Debug,
+            aqt_host: linux,
+            aqt_arch: gcc_64
+          }
+        - {
+            name: "windows-2022-debug",
+            os: windows-2022,
+            cmake_config: Debug,
+            aqt_host: windows,
+            aqt_arch: win64_msvc2019_64
+          }
+        - {
+            name: "macos-12-release",
+            os: macos-12,
+            cmake_config: Release,
+            aqt_host: mac,
+            aqt_arch: clang_64
+          }
+        - {
+            name: "ubuntu-22.04-release",
+            os: ubuntu-22.04,
+            cmake_config: Release,
+            aqt_host: linux,
+            aqt_arch: gcc_64
+          }
+        - {
+            name: "windows-2022-release",
+            os: windows-2022,
+            cmake_config: Release,
+            aqt_host: windows,
+            aqt_arch: win64_msvc2019_64
+          }
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ env.AQT_VER }}
+          host: ${{ matrix.config.aqt_host }}
+          target: ${{ env.AQT_TARGET }}
+          arch: ${{ matrix.config.aqt_arch }}
+          dir: ${{ runner.workspace }}
+          cache: true
+          cache-key-prefix: install-qt-action
+          tools: tools_ninja
+
+      - name: Add ninja path
+        shell: bash
+        run: |
+          echo "${IQTA_TOOLS}/Ninja" >> $GITHUB_PATH
+
+      - name: Set up Visual Studio shell
+        if: runner.os == 'Windows'
+        uses: egor-tensin/vs-shell@v2
+        with:
+          arch: x64
+
+      - name: Cache qt5-vtk
+        id: cache-qt5-vtk
+        uses: actions/cache@v3
+        with:
+          path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}
+          key: ${{ matrix.config.os }}-qt5-vtk-${{ matrix.config.cmake_config }}-${{ hashFiles('CMakePresets-vtk-${{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json') }}
+
+      - name: Build qt5-vtk (Non-Windows)
+        if: steps.cache-qt5-vtk.outputs.cache-hit != 'true' && runner.os != 'Windows'
+        working-directory: ${{ runner.workspace }}
+        run: |
+          # curl -L -O https://github.com/Kitware/VTK/archive/refs/tags/v${{ env.VTK_VER }}.tar.gz
+          # tar xzf ./v${{ env.VTK_VER }}.tar.gz
+          printenv
+          # cp ./modelviewer-mf6/misc/CMakePresets-vtk-{{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json ./VTK-${{ env.VTK_VER }}/CMakePresets.json
+          # cd ./VTK-${{ env.VTK_VER }}/.
+          # cmake --preset ${{ matrix.config.aqt_arch }}
+          # cmake --build --preset ${{ matrix.config.aqt_arch }} --config ${{ matrix.config.cmake_config }}
+          # cmake --install ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-build --config ${{ matrix.config.cmake_config }}
+
+      - name: Build qt5-vtk (Windows)
+        if: steps.cache-qt5-vtk.outputs.cache-hit != 'true' && runner.os == 'Windows'
+        working-directory: ${{ runner.workspace }}
+        run: |
+          # curl -L -O https://github.com/Kitware/VTK/archive/refs/tags/v${{ env.VTK_VER }}.tar.gz
+          # tar xzf ./v${{ env.VTK_VER }}.tar.gz
+          Get-ChildItem env:
+          # cp ./modelviewer-mf6/misc/CMakePresets-vtk-{{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json ./VTK-${{ env.VTK_VER }}/CMakePresets.json
+          # cd ./VTK-${{ env.VTK_VER }}/.
+          # cmake --preset ${{ matrix.config.aqt_arch }}
+          # cmake --build --preset ${{ matrix.config.aqt_arch }} --config ${{ matrix.config.cmake_config }}
+          # cmake --install ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-build --config ${{ matrix.config.cmake_config }}
