@@ -231,6 +231,8 @@ jobs:
           }
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Cache qt5-vtk debug
         id: cache-qt5-vtk-debug
         uses: actions/cache@v3
@@ -253,3 +255,26 @@ jobs:
         with:
           name: ${{ matrix.config.os }}-artifact
           path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-${{ matrix.config.os }}.7z
+
+  release:
+    name: Create release
+    runs-on: windows-2022
+    needs: [merge]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: macos-11-artifact
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ubuntu-20.04-artifact
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: windows-2019-artifact
+
+      - name: Display structure of downloaded files
+        shell: bash
+        run: ls -R
