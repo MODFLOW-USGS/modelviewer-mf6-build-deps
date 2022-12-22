@@ -160,18 +160,42 @@ jobs:
           cmake --install ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-build --config ${{ matrix.config.cmake_config }}
 
       - name: Dump contexts
-        if: false
+        if: true
         env:
-          RUNNER_CONTEXT: ${{ toJSON(runner) }}
           GITHUB_CONTEXT: ${{ toJSON(github) }}
+          ENV_CONTEXT: ${{ toJSON(env) }}
           JOB_CONTEXT: ${{ toJSON(job) }}
+          JOBS_CONTEXT: ${{ toJSON(jobs) }}
+          STEPS_CONTEXT: ${{ toJSON(steps) }}
+          RUNNER_CONTEXT: ${{ toJSON(runner) }}
+          SECRETS_CONTEXT: ${{ toJSON(secrets) }}
+          STRATEGY_CONTEXT: ${{ toJSON(strategy) }}
+          MATRIX_CONTEXT: ${{ toJSON(matrix) }}
+          NEEDS_CONTEXT: ${{ toJSON(needs) }}
+          INPUTS_CONTEXT: ${{ toJSON(inputs) }}
         run: |
-          echo "###############################################################"
-          echo "$RUNNER_CONTEXT"
-          echo "###############################################################"
+          echo "########################  github  ###################################"
           echo "$GITHUB_CONTEXT"
-          echo "###############################################################"
+          echo "########################   env    ###################################"
+          echo "$ENV_CONTEXT"
+          echo "########################   job    ###################################"
           echo "$JOB_CONTEXT"
+          echo "########################   jobs   ###################################"
+          echo "$JOBS_CONTEXT"
+          echo "########################   steps  ###################################"
+          echo "$STEPS_CONTEXT"
+          echo "########################  runner  ###################################"
+          echo "$RUNNER_CONTEXT"
+          echo "########################  secrets  ###################################"
+          echo "$SECRETS_CONTEXT"
+          echo "######################## strategy ###################################"
+          echo "$STRATEGY_CONTEXT"
+          echo "########################  matrix  ###################################"
+          echo "$MATRIX_CONTEXT"
+          echo "########################   needs  ###################################"
+          echo "$NEEDS_CONTEXT"
+          echo "########################  inputs  ###################################"
+          echo "$INPUTS_CONTEXT"
           echo "###############################################################"
           echo "runner.workspace = ${{ runner.workspace }}"
           echo "github.workspace = ${{ github.workspace }}"
