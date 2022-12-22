@@ -283,6 +283,8 @@ jobs:
       - name: Create release
         env:
           releases_url: ${{ github.api_url }}/repos/${{ github.repository }}/releases
+        shell: pwsh
+        working-directory: ${{ runner.workspace }}
         run: |
           # create tag
           $tag_name = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH.mm.ssK')
