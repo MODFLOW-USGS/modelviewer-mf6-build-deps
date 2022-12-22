@@ -165,7 +165,7 @@ jobs:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
           ENV_CONTEXT: ${{ toJSON(env) }}
           JOB_CONTEXT: ${{ toJSON(job) }}
-          JOBS_CONTEXT: ${{ toJSON(jobs) }}
+          #JOBS_CONTEXT: ${{ toJSON(jobs) }}
           STEPS_CONTEXT: ${{ toJSON(steps) }}
           RUNNER_CONTEXT: ${{ toJSON(runner) }}
           SECRETS_CONTEXT: ${{ toJSON(secrets) }}
