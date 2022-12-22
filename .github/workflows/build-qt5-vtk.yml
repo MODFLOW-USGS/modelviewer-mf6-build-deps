@@ -266,15 +266,19 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: macos-11-artifact
+          path: ${{ runner.workspace }}
 
       - uses: actions/download-artifact@v3
         with:
           name: ubuntu-20.04-artifact
+          path: ${{ runner.workspace }}
 
       - uses: actions/download-artifact@v3
         with:
           name: windows-2019-artifact
+          path: ${{ runner.workspace }}
 
       - name: Display structure of downloaded files
-        shell: bash
-        run: ls -R
+        shell: pwsh
+        working-directory: ${{ runner.workspace }}
+        run: Get-ChildItem
