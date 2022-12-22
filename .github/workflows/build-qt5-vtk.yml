@@ -201,3 +201,55 @@ jobs:
           echo "github.workspace = ${{ github.workspace }}"
           echo "env.RUNNER_WORKSPACE = ${{ env.RUNNER_WORKSPACE }}"
           echo "RUNNER_WORKSPACE = ${RUNNER_WORKSPACE}"
+
+
+  merge:
+    name: ${{ matrix.config.os }}
+    runs-on: ${{ matrix.config.os }}
+    needs: [cache-qt5-vtk]
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            os: macos-11,
+          }
+        - {
+            os: macos-12,
+          }
+        - {
+            os: ubuntu-20.04,
+          }
+        - {
+            os: ubuntu-22.04,
+          }
+        - {
+            os: windows-2019,
+          }
+        - {
+            os: windows-2022,
+          }
+
+    steps:
+      - name: Cache qt5-vtk debug
+        id: cache-qt5-vtk-debug
+        uses: actions/cache@v3
+        with:
+          path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}
+          key: ${{ matrix.config.os }}-qt5-vtk-Debug-${{ hashFiles('CMakePresets-vtk-${{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json') }}
+
+      - name: Cache qt5-vtk release
+        id: cache-qt5-vtk-release
+        uses: actions/cache@v3
+        with:
+          path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}
+          key: ${{ matrix.config.os }}-qt5-vtk-Release-${{ hashFiles('CMakePresets-vtk-${{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json') }}
+
+      - name: 7-Zip it up
+        run: 7z a ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-${{ matrix.config.os }}.7z ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.config.os }}-artifact
+          path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-${{ matrix.config.os }}.7z
