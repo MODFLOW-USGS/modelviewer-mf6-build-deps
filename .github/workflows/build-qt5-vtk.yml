@@ -204,31 +204,13 @@ jobs:
 
 
   merge:
-    name: ${{ matrix.config.os }}
-    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     needs: [cache-qt5-vtk]
     strategy:
       fail-fast: false
       matrix:
-        config:
-        - {
-            os: macos-11,
-          }
-        - {
-            os: macos-12,
-          }
-        - {
-            os: ubuntu-20.04,
-          }
-        - {
-            os: ubuntu-22.04,
-          }
-        - {
-            os: windows-2019,
-          }
-        - {
-            os: windows-2022,
-          }
+        os: [ macos-11, macos-12, ubuntu-20.04, ubuntu-22.04, windows-2019, windows-2022 ]
 
     steps:
       - uses: actions/checkout@v3
@@ -238,23 +220,23 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}
-          key: ${{ matrix.config.os }}-qt5-vtk-Debug-${{ hashFiles('CMakePresets-vtk-${{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json') }}
+          key: ${{ matrix.os }}-qt5-vtk-Debug-${{ hashFiles('CMakePresets-vtk-${{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json') }}
 
       - name: Cache qt5-vtk release
         id: cache-qt5-vtk-release
         uses: actions/cache@v3
         with:
           path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}
-          key: ${{ matrix.config.os }}-qt5-vtk-Release-${{ hashFiles('CMakePresets-vtk-${{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json') }}
+          key: ${{ matrix.os }}-qt5-vtk-Release-${{ hashFiles('CMakePresets-vtk-${{ env.VTK_VER }}-qt-${{ env.AQT_VER }}.json') }}
 
       - name: 7-Zip it up
-        run: 7z a ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-${{ matrix.config.os }}.7z ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}
+        run: 7z a ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-${{ matrix.os }}.7z ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.config.os }}-artifact
-          path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-${{ matrix.config.os }}.7z
+          name: ${{ matrix.os }}-artifact
+          path: ${{ runner.workspace }}/qt5-vtk-${{ env.VTK_VER }}-${{ matrix.os }}.7z
 
   release:
     name: Create release
@@ -270,12 +252,27 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
+          name: macos-12-artifact
+          path: ${{ runner.workspace }}
+
+      - uses: actions/download-artifact@v3
+        with:
           name: ubuntu-20.04-artifact
           path: ${{ runner.workspace }}
 
       - uses: actions/download-artifact@v3
         with:
+          name: ubuntu-22.04-artifact
+          path: ${{ runner.workspace }}
+
+      - uses: actions/download-artifact@v3
+        with:
           name: windows-2019-artifact
+          path: ${{ runner.workspace }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: windows-2022-artifact
           path: ${{ runner.workspace }}
 
       - name: Display structure of downloaded files
